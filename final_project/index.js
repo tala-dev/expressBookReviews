@@ -12,6 +12,7 @@ app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUni
 
 app.use("/customer/auth/*", function auth(req,res,next){
     console.log("/customer/auth");
+    console.log("middleware req.session.authorization", req.session.authorization);
     if (req.session.authorization) { // Get the authorization object stored in the session
         token = req.session.authorization['accessToken']; // Retrieve the token from authorization object
         jwt.verify(token, "access", (err, user) => { // Use JWT to verify token
