@@ -3,21 +3,23 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+// Requiring axios module for making HTTP requests
+const axios = require('axios').default;
 
 // Function to check if the user exists
-const doesExist = (username) => {
-    let userswithsamename = users.filter((user) => {
-        return user.username === username;
-    });
-    return userswithsamename.length > 0;
-};
+// const doesExist = (username) => {
+//     let userswithsamename = users.filter((user) => {
+//         return user.username === username;
+//     });
+//     return userswithsamename.length > 0;
+// };
 
 public_users.post("/register", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
   if (username && password) {
-    if (!doesExist(username)) {
+    if (!isValid(username)) {
       users.push({ "username": username, "password": password });
       return res.status(200).json({ message: "User successfully registered. Now you can login" });
     } else {
@@ -25,14 +27,23 @@ public_users.post("/register", (req, res) => {
     }
   }
   return res.status(404).json({ message: "Unable to register user." });
-  
+
 });
 
 // Get the book list available in the shop
-public_users.get('/', function (req, res) {
+public_users.get('/', async function (req, res) {
   // Send JSON response with formatted books data
   console.log("/");
-  return res.send(JSON.stringify(books, null, 4));
+
+  try {
+    // using localhost which will create a loop, but demonstrate that I can use async/await with Axios
+    const response = await axios.get('http://localhost:8080/'); 
+    console.log("response:", response);    
+    return res.status(200).send(JSON.stringify(books, null, 4)); 
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching book list" });
+  }
+
 });
 
 // Get book details based on ISBN
