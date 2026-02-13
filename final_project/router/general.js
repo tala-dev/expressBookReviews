@@ -96,24 +96,33 @@ public_users.get('/author/:author', async function (req, res) {
 });
 
 // Get all books based on title
-public_users.get('/title/:title', function (req, res) {
+public_users.get('/title/:title', async function (req, res) {
   // getting the book details based on the title
   console.log("/title/:title");
   const title = req.params.title;
 
-  let titleBooks = [];
-
-  for (const isbn in books) {
-    if (books[isbn].title === title) {
-      titleBooks.push(books[isbn]);
-    }
+  try {
+    // using non-existing site, but it demonstrates that I can use async/await with Axios
+    const response = await axios.get('http://somesite.com/title/' + title); 
+       
+    return res.status(200).send(JSON.stringify(response.data, null, 4)); 
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching book details" });
   }
 
-  if (titleBooks.length > 0) {
-    res.send(titleBooks);
-  } else {
-    return res.status(200).json({ message: "No books found with the title " + title });
-  }
+  // let titleBooks = [];
+
+  // for (const isbn in books) {
+  //   if (books[isbn].title === title) {
+  //     titleBooks.push(books[isbn]);
+  //   }
+  // }
+
+  // if (titleBooks.length > 0) {
+  //   res.send(titleBooks);
+  // } else {
+  //   return res.status(200).json({ message: "No books found with the title " + title });
+  // }
 
 });
 
