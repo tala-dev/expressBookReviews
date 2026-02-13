@@ -32,15 +32,23 @@ public_users.post("/register", (req, res) => {
 
 // Get the book list available in the shop
 public_users.get('/', async function (req, res) {
-  
+
   console.log("/");
   // return res.send(JSON.stringify(books, null, 4));
 
   try {
-    // using non-existing site, but it demonstrates that I can use async/await with Axios
-    const response = await axios.get('http://somesite.com/books'); 
-       
-    return res.status(200).send(JSON.stringify(response.data, null, 4)); 
+    const getBooks = async () => {
+      return books; // Direct access to the imported books
+    };
+    
+    // we take books from local storage
+    const bookList = await getBooks();
+    return res.status(200).send(JSON.stringify(bookList, null, 4));
+
+    // if we need to use axios it will look like this
+    // const response = await axios.get('http://somesite.com/books');
+    // return res.status(200).send(JSON.stringify(response.data, null, 4));
+
   } catch (error) {
     return res.status(500).json({ message: "Error fetching book list" });
   }
@@ -53,16 +61,22 @@ public_users.get('/isbn/:isbn', async function (req, res) {
   console.log("/isbn/:isbn");
   const isbn = req.params.isbn;
   try {
-    // using non-existing site, but it demonstrates that I can use async/await with Axios
-    const response = await axios.get('http://somesite.com/books/' + isbn); 
-       
-    return res.status(200).send(JSON.stringify(response.data, null, 4)); 
+
+    const getBook = async (isbn) => {
+         return books[isbn]; // Direct access to the imported books
+    };
+
+    // we take books from local storage
+    const book = await getBook(isbn);
+    return res.status(200).send(JSON.stringify(book, null, 4));
+
+    // if we need to use axios 
+    //const response = await axios.get('http://somesite.com/books/' + isbn);
+    //return res.status(200).send(JSON.stringify(response.data, null, 4));
   } catch (error) {
     return res.status(500).json({ message: "Error fetching book details" });
   }
 
-
-  // return res.send(books[isbn]);
 });
 
 // Get book details based on author
@@ -70,29 +84,30 @@ public_users.get('/author/:author', async function (req, res) {
   // Getting the book details based on the author
   console.log("/author/:author");
   const author = req.params.author;
+  const getBook = async (author) => {
+    let authorBooks = [];
+
+    for (const isbn in books) {
+      if (books[isbn].author === author) {
+        authorBooks.push(books[isbn]);
+      }
+    }
+    return authorBooks;
+  };
 
   try {
-    // using non-existing site, but it demonstrates that I can use async/await with Axios
-    const response = await axios.get('http://somesite.com/author/' + author); 
-       
-    return res.status(200).send(JSON.stringify(response.data, null, 4)); 
+
+    // we take books from local storage
+    const book = await getBook(author);
+    return res.status(200).send(JSON.stringify(book, null, 4));
+
+    // if we need to use axios 
+    //const response = await axios.get('http://somesite.com/author/' + author);
+    //return res.status(200).send(JSON.stringify(response.data, null, 4));
   } catch (error) {
     return res.status(500).json({ message: "Error fetching book details" });
   }
-
-  // let authorBooks = [];
-
-  // for (const isbn in books) {
-  //   if (books[isbn].author === author) {
-  //     authorBooks.push(books[isbn]);
-  //   }
-  // }
-  // if (authorBooks.length > 0) {
-  //   res.send(authorBooks);
-  // } else {
-  //   return res.status(200).json({ message: "No books found for the author " + author });
-  // }
-
+  
 });
 
 // Get all books based on title
@@ -101,29 +116,30 @@ public_users.get('/title/:title', async function (req, res) {
   console.log("/title/:title");
   const title = req.params.title;
 
+  const getBook = async (title) => {
+    let titleBooks = [];
+
+    for (const isbn in books) {
+      if (books[isbn].title === title) {
+        titleBooks.push(books[isbn]);
+      }
+    }
+    return titleBooks;
+  }
+
   try {
-    // using non-existing site, but it demonstrates that I can use async/await with Axios
-    const response = await axios.get('http://somesite.com/title/' + title); 
-       
-    return res.status(200).send(JSON.stringify(response.data, null, 4)); 
+
+    // we take books from local storage
+    const book = await getBook(title);
+    return res.status(200).send(JSON.stringify(book, null, 4));
+
+    // if we need to use axios 
+    //const response = await axios.get('http://somesite.com/title/' + title);
+    //return res.status(200).send(JSON.stringify(response.data, null, 4));
   } catch (error) {
     return res.status(500).json({ message: "Error fetching book details" });
   }
-
-  // let titleBooks = [];
-
-  // for (const isbn in books) {
-  //   if (books[isbn].title === title) {
-  //     titleBooks.push(books[isbn]);
-  //   }
-  // }
-
-  // if (titleBooks.length > 0) {
-  //   res.send(titleBooks);
-  // } else {
-  //   return res.status(200).json({ message: "No books found with the title " + title });
-  // }
-
+  
 });
 
 //  Get book review
