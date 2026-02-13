@@ -7,19 +7,19 @@ const public_users = express.Router();
 const axios = require('axios').default;
 
 // Function to check if the user exists
-// const doesExist = (username) => {
-//     let userswithsamename = users.filter((user) => {
-//         return user.username === username;
-//     });
-//     return userswithsamename.length > 0;
-// };
+const doesExist = (username) => {
+    let userswithsamename = users.filter((user) => {
+        return user.username === username;
+    });
+    return userswithsamename.length > 0;
+};
 
 public_users.post("/register", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
   if (username && password) {
-    if (!isValid(username)) {
+    if (!doesExist(username)) {
       users.push({ "username": username, "password": password });
       return res.status(200).json({ message: "User successfully registered. Now you can login" });
     } else {
